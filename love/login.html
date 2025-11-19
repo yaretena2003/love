@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nuestro Corazón - Acceso</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&family=Playfair+Display:ital,wght@0,600;1,600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Outfit', 'sans-serif'],
+                        serif: ['Playfair Display', 'serif'],
+                    },
+                    colors: {
+                        customRed: '#e91e63',
+                        customPink: '#ff4081',
+                        customLightPink: '#f8bbd0',
+                        customDarkPink: '#c2185b',
+                        customPurpleAccent: '#8e24aa',
+                    },
+                    animation: {
+                        'fade-in-up': 'fadeInUp 0.8s ease-out forwards',
+                        'fade-in': 'fadeIn 0.6s ease-out forwards',
+                        'zoom-slow': 'zoomSlow 20s linear infinite alternate',
+                    },
+                    keyframes: {
+                        fadeInUp: {
+                            '0%': { opacity: '0', transform: 'translateY(20px)' },
+                            '100%': { opacity: '1', transform: 'translateY(0)' },
+                        },
+                        fadeIn: {
+                            '0%': { opacity: '0' },
+                            '100%': { opacity: '1' },
+                        },
+                        zoomSlow: {
+                            '0%': { transform: 'scale(1)' },
+                            '100%': { transform: 'scale(1.1)' },
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            background-color: #fce4ec;
+        }
+
+        /* Animación de sacudida para error */
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            10%, 30%, 50%, 70%, 90% { transform: translateX(-4px); }
+            20%, 40%, 60%, 80% { transform: translateX(4px); }
+        }
+        .shake-animation {
+            animation: shake 0.4s cubic-bezier(.36,.07,.19,.97) both;
+        }
+
+        /* Transiciones suaves para los campos */
+        .form-group {
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            max-height: 200px;
+            opacity: 1;
+            transform: translateY(0);
+        }
+        .form-group.hidden-field {
+            max-height: 0;
+            opacity: 0;
+            transform: translateY(-10px);
+            margin-bottom: 0;
+            pointer-events: none;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex items-center justify-center font-sans text-gray-800 p-4">
+
+    <div class="relative flex w-full max-w-5xl h-[650px] bg-white shadow-2xl rounded-2xl overflow-hidden">
+        
+        <!-- Panel Izquierdo (Imagen y Bienvenida) -->
+        <div class="hidden md:flex w-1/2 relative flex-col justify-center p-12 text-white overflow-hidden group">
+            
+            <!-- IMAGEN DE FONDO -->
+            <!-- Cambia la URL en src para poner tu propia foto -->
+            <img src="imagenes/navidad.jpeg" 
+                 alt="Fondo Romántico" 
+                 class="absolute inset-0 w-full h-full object-cover transition-transform duration-700 animate-zoom-slow">
+            
+            <!-- Capa oscura/rosada para que el texto se lea bien (Overlay) -->
+            <div class="absolute inset-0 bg-gradient-to-b from-customDarkPink/60 to-customRed/80 mix-blend-multiply"></div>
+            <div class="absolute inset-0 bg-black/20"></div> <!-- Sombra extra para contraste -->
+
+            <!-- Contenido de Texto -->
+            <div class="relative z-10 text-center md:text-left">
+                
+                <h1 class="text-5xl font-serif font-bold leading-tight mb-6 text-shadow-lg animate-fade-in-up" style="animation-delay: 0.1s;">
+                    Nuestra<br>Historia
+                </h1>
+                
+                <p class="text-lg leading-relaxed mb-8 font-light opacity-95 animate-fade-in-up" style="animation-delay: 0.2s;">
+                    "Cada momento contigo es un tesoro que guardo en el corazón. Bienvenido a nuestro pequeño rincón del mundo."
+                </p>
+                
+                <div class="mt-auto pt-8 border-t border-white/30 animate-fade-in-up" style="animation-delay: 0.3s;">
+                    <p class="text-sm font-medium tracking-wider uppercase">Solo para nosotros</p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Panel Derecho (Login) -->
+        <div class="w-full md:w-1/2 p-8 sm:p-12 flex flex-col justify-center bg-white relative">
+            
+            <div class="text-center mb-10 animate-fade-in">
+                <div class="relative w-28 h-28 mx-auto mb-6 group">
+                    <div class="absolute inset-0 bg-pink-200 rounded-full animate-ping opacity-20"></div>
+                    <img src="imagenes/logo.png" 
+                         onerror="this.src='https://placehold.co/120x120/ff80ab/ffffff?text=Love'" 
+                         alt="Logo" 
+                         class="relative w-full h-full rounded-full object-cover border-4 border-white shadow-xl">
+                </div>
+                
+                <h2 class="text-3xl font-bold text-gray-800 tracking-tight">Bienvenido</h2>
+                <p class="text-gray-400 text-sm mt-2">Por favor, confirma quién eres para entrar</p>
+            </div>
+
+            <!-- Selector de Usuario -->
+            <div class="flex bg-gray-50 p-1.5 rounded-xl mb-8 shadow-inner animate-fade-in" style="animation-delay: 0.2s;">
+                <button id="btn-orlando" class="flex-1 py-3 rounded-lg text-sm font-bold transition-all duration-300 shadow-md transform hover:scale-[1.02] bg-gradient-to-r from-customDarkPink to-customRed text-white">
+                    Orlando
+                </button>
+                <button id="btn-yaremi" class="flex-1 py-3 rounded-lg text-sm font-bold transition-all duration-300 text-gray-500 hover:text-customRed hover:bg-white/50">
+                    Yaremi
+                </button>
+            </div>
+
+            <form id="login-form" class="space-y-6 animate-fade-in" style="animation-delay: 0.4s;">
+                
+                <!-- Campo 1 -->
+                <div class="form-group">
+                    <label id="label-field-1" for="field-1" class="block text-xs font-bold text-gray-400 uppercase mb-1 ml-1">¿Dónde nos conocimos?</label>
+                    <div class="relative group">
+                        <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                            <i class="fas fa-map-marker-alt text-gray-300 group-focus-within:text-customPink transition-colors text-lg"></i>
+                        </div>
+                        <input type="password" id="field-1" 
+                               class="block w-full pl-12 pr-12 py-3.5 bg-gray-50 border border-gray-200 rounded-xl text-gray-700 placeholder-gray-400 focus:outline-none focus:border-customPink focus:ring-4 focus:ring-customPink/10 transition-all duration-300"
+                               placeholder="Escribe la respuesta...">
+                        <div class="absolute inset-y-0 right-0 pr-4 flex items-center cursor-pointer toggle-password" data-target="field-1">
+                            <i class="fas fa-eye text-gray-400 hover:text-customPink transition-colors"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Campo 2 -->
+                <div id="container-field-2" class="form-group">
+                    <label for="field-2" class="block text-xs font-bold text-gray-400 uppercase mb-1 ml-1">¿Cuándo nos hicimos novios?</label>
+                    <div class="relative group">
+                        <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                            <i class="fas fa-calendar-heart text-gray-300 group-focus-within:text-customPink transition-colors text-lg"></i>
+                        </div>
+                        <input type="password" id="field-2" 
+                               class="block w-full pl-12 pr-12 py-3.5 bg-gray-50 border border-gray-200 rounded-xl text-gray-700 placeholder-gray-400 focus:outline-none focus:border-customPink focus:ring-4 focus:ring-customPink/10 transition-all duration-300"
+                               placeholder="DDMMAA">
+                        <div class="absolute inset-y-0 right-0 pr-4 flex items-center cursor-pointer toggle-password" data-target="field-2">
+                            <i class="fas fa-eye text-gray-400 hover:text-customPink transition-colors"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Mensaje Error -->
+                <div id="error-message" class="hidden bg-red-50 text-red-500 text-xs font-semibold p-3 rounded-lg border border-red-100 flex items-center animate-fade-in-up">
+                    <i class="fas fa-heart-broken mr-2 text-red-500 text-lg"></i>
+                    <span id="error-text">Datos incorrectos</span>
+                </div>
+
+                <!-- Botón -->
+                <button type="submit" id="submit-button" 
+                        class="w-full py-4 px-4 bg-gradient-to-r from-customDarkPink to-customRed text-white font-bold rounded-xl shadow-lg shadow-pink-200 hover:shadow-xl hover:scale-[1.02] active:scale-[0.98] transition-all duration-300 disabled:opacity-60 disabled:cursor-not-allowed disabled:transform-none">
+                    LOG IN
+                </button>
+                
+            </form>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // --- CONFIGURACIÓN DE CREDENCIALES ---
+            const USER_DATA = {
+                orlando: { place: 'preparatoria', date: '290625' },
+                yaremi: { password: 'amor' }
+            };
+
+            let currentUser = 'orlando';
+
+            // Elementos del DOM
+            const btnOrlando = document.getElementById('btn-orlando');
+            const btnYaremi = document.getElementById('btn-yaremi');
+            const labelField1 = document.getElementById('label-field-1');
+            const inputField1 = document.getElementById('field-1');
+            const containerField2 = document.getElementById('container-field-2');
+            const inputField2 = document.getElementById('field-2');
+            const loginForm = document.getElementById('login-form');
+            const errorMessage = document.getElementById('error-message');
+            const errorText = document.getElementById('error-text');
+            const submitButton = document.getElementById('submit-button');
+            const togglePasswordIcons = document.querySelectorAll('.toggle-password');
+            const loginCard = document.querySelector('.md\\:w-1\\/2'); // Selecciona el panel derecho para animar
+
+            // --- FUNCIÓN CAMBIAR USUARIO ---
+            function switchUser(user) {
+                if (currentUser === user) return; 
+                currentUser = user;
+                
+                // Resetear UI
+                errorMessage.classList.add('hidden');
+                inputField1.value = '';
+                inputField2.value = '';
+                
+                // Clases CSS para estados activo/inactivo
+                const activeClasses = ['bg-gradient-to-r', 'from-customDarkPink', 'to-customRed', 'text-white', 'shadow-md', 'transform', 'scale-[1.02]'];
+                const inactiveClasses = ['text-gray-500', 'hover:text-customRed', 'hover:bg-white/50', 'bg-transparent', 'shadow-none', 'transform-none'];
+
+                if (user === 'orlando') {
+                    // Activar Orlando
+                    btnOrlando.classList.add(...activeClasses);
+                    btnOrlando.classList.remove('text-gray-500', 'bg-transparent', 'hover:text-customRed', 'hover:bg-white/50');
+                    
+                    // Desactivar Yaremi
+                    btnYaremi.classList.remove(...activeClasses);
+                    btnYaremi.classList.add('text-gray-500', 'hover:text-customRed', 'hover:bg-white/50', 'bg-transparent');
+
+                    // Configurar campos
+                    labelField1.textContent = '¿Dónde nos conocimos?';
+                    inputField1.placeholder = 'Lugar o palabra secreta...';
+                    containerField2.classList.remove('hidden-field');
+                    setTimeout(() => { inputField2.required = true; }, 200);
+
+                } else {
+                    // Activar Yaremi
+                    btnYaremi.classList.add(...activeClasses);
+                    btnYaremi.classList.remove('text-gray-500', 'bg-transparent', 'hover:text-customRed', 'hover:bg-white/50');
+                    
+                    // Desactivar Orlando
+                    btnOrlando.classList.remove(...activeClasses);
+                    btnOrlando.classList.add('text-gray-500', 'hover:text-customRed', 'hover:bg-white/50', 'bg-transparent');
+
+                    // Configurar campos
+                    labelField1.textContent = 'Contraseña Mágica';
+                    inputField1.placeholder = 'La palabra secreta...';
+                    containerField2.classList.add('hidden-field');
+                    inputField2.required = false;
+                }
+            }
+
+            // Listeners botones usuario
+            btnOrlando.addEventListener('click', () => switchUser('orlando'));
+            btnYaremi.addEventListener('click', () => switchUser('yaremi'));
+            
+            // Inicializar estado
+            switchUser('orlando');
+
+            // --- MOSTRAR/OCULTAR CONTRASEÑA ---
+            togglePasswordIcons.forEach(iconContainer => {
+                iconContainer.addEventListener('click', () => {
+                    const targetId = iconContainer.getAttribute('data-target');
+                    const input = document.getElementById(targetId);
+                    const icon = iconContainer.querySelector('i');
+                    
+                    if (input.type === 'password') {
+                        input.type = 'text';
+                        icon.classList.remove('fa-eye');
+                        icon.classList.add('fa-eye-slash', 'text-customPink');
+                    } else {
+                        input.type = 'password';
+                        icon.classList.remove('fa-eye-slash', 'text-customPink');
+                        icon.classList.add('fa-eye');
+                    }
+                });
+            });
+
+            // --- LÓGICA DE LOGIN ---
+            let loginAttempts = 0;
+            let isBlocked = false;
+            const LOCK_TIME = 60000;
+            const MAX_ATTEMPTS = 3;
+
+            localStorage.removeItem('isLoggedIn');
+
+            loginForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                if (isBlocked) return;
+
+                const val1 = inputField1.value.trim().toLowerCase();
+                const val2 = inputField2.value.trim();
+                let success = false;
+
+                if (currentUser === 'orlando') {
+                    if (val1 === USER_DATA.orlando.place && val2 === USER_DATA.orlando.date) {
+                        success = true;
+                    }
+                } else {
+                    if (val1 === USER_DATA.yaremi.password) {
+                        success = true;
+                    }
+                }
+
+                if (success) {
+                    // Efecto de éxito
+                    submitButton.innerHTML = '<i class="fas fa-heart fa-beat mr-2"></i> ¡Bienvenido!';
+                    localStorage.setItem('isLoggedIn', 'true');
+                    localStorage.setItem('currentUser', currentUser);
+                    
+                    setTimeout(() => {
+                        window.location.href = 'index.html';
+                    }, 800); 
+                } else {
+                    handleError();
+                }
+            });
+
+            function handleError() {
+                loginAttempts++;
+                errorMessage.classList.remove('hidden');
+                
+                // Reiniciar animación
+                loginCard.classList.remove('shake-animation');
+                void loginCard.offsetWidth; 
+                loginCard.classList.add('shake-animation');
+
+                inputField1.value = '';
+                inputField2.value = '';
+
+                if (loginAttempts >= MAX_ATTEMPTS) {
+                    isBlocked = true;
+                    submitButton.disabled = true;
+                    submitButton.classList.add('opacity-60', 'cursor-not-allowed');
+                    errorText.textContent = `Demasiados intentos. Espera 1 minuto.`;
+                    
+                    setTimeout(() => {
+                        isBlocked = false;
+                        submitButton.disabled = false;
+                        submitButton.classList.remove('opacity-60', 'cursor-not-allowed');
+                        loginAttempts = 0;
+                        errorMessage.classList.add('hidden');
+                    }, LOCK_TIME);
+                } else {
+                    const remaining = MAX_ATTEMPTS - loginAttempts;
+                    errorText.textContent = `Datos incorrectos. Intentos restantes: ${remaining}`;
+                }
+            }
+        });
+    </script>
+</body>
+</html>
