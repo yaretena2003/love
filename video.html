@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- 1. Título específico de la página -->
+    <title>VIDEO</title>
+    
+    <!-- 2. Carga de Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- 3. Carga de Fuentes de Google -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Lato:wght@400;700&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
+    
+    <!-- 4. Configuración de Tailwind -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Lato', 'sans-serif'],
+                        heading: ['Playfair Display', 'serif'],
+                        script: ['Great Vibes', 'cursive'],
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <!-- 5. Estilos -->
+    <style>
+        /* Animación de corazones de fondo */
+        .heart-particle {
+            position: fixed;
+            font-size: 24px;
+            color: #e11d48; /* rose-600 */
+            opacity: 0; /* Empiezan invisibles */
+            animation: floatUp 6s ease-out forwards;
+            pointer-events: none;
+            z-index: 0; /* Detrás del contenido */
+        }
+
+        @keyframes floatUp {
+            0% {
+                transform: translateY(100vh) translateX(0) scale(0.5);
+                opacity: 0;
+            }
+            10% {
+                opacity: 0.6;
+            }
+            100% {
+                transform: translateY(-100px) translateX(var(--random-x)) scale(1);
+                opacity: 0;
+            }
+        }
+
+        /* Estilo simple para las tarjetas de video */
+        .video-card {
+            transition: transform 0.3s ease;
+        }
+        /* Efecto sutil al pasar el mouse */
+        .video-card:hover {
+            transform: scale(1.01); 
+        }
+    </style>
+</head>
+<body class="bg-rose-50 font-sans text-gray-700 relative overflow-x-hidden">
+
+    <!-- Barra Superior -->
+    <div class="bg-white p-4 shadow-sm sticky top-0 z-50">
+        <div class="container mx-auto max-w-5xl flex justify-between items-center">
+            
+            <!-- Logo/Iniciales -->
+            <div class="font-heading text-3xl font-bold text-gray-800">
+                <span class="w-20 h-20 mx-auto block rounded-full overflow-hidden">
+                    <img src="imagenes/logo.png" alt="Logo" class="w-full h-full object-cover" onerror="this.src='https://placehold.co/100x100/ffccd5/e11d48?text=L'">
+                </span>
+            </div>
+            
+            <!-- Menú de Navegación -->
+            <nav class="flex gap-4 sm:gap-6 flex-wrap justify-end">
+                <a href="home.html" 
+                   class="text-gray-600 font-medium hover:text-rose-600 transition-colors duration-200">Inicio</a>
+                
+                <a href="galeria.html" 
+                   class="text-gray-600 font-medium hover:text-rose-600 transition-colors duration-200">Galería</a>
+                
+                <!-- Enlace activo -->
+                <a href="video.html" 
+                   class="text-rose-600 font-bold transition-colors duration-200">Video</a>
+                
+                <a href="carta.html" 
+                   class="text-gray-600 font-medium hover:text-rose-600 transition-colors duration-200">Carta</a>
+                
+                <a href="juegos.html" 
+                   class="text-gray-600 font-medium hover:text-rose-600 transition-colors duration-200">Juegos</a>
+                
+                <!-- BOTÓN DE SALIR -->
+                <button id="logout-button" 
+                        class="text-gray-500 font-medium hover:text-rose-600 transition-colors duration-200 border-l pl-4 sm:pl-6 border-gray-200">
+                    Salir
+                </button>
+            </nav>
+        </div>
+    </div>
+
+    <!-- Hero Section -->
+    <section class="bg-gradient-to-r from-pink-300 to-rose-200 text-center py-24 sm:py-32 relative overflow-hidden z-10">
+        <div class="relative z-10">
+            <h1 class="font-heading text-7xl sm:text-8xl text-white font-bold tracking-tight mb-4 drop-shadow-lg">
+                Para ti mi amor
+            </h1>
+            <p class="font-heading text-2xl sm:text-3xl text-white opacity-90 mb-6 drop-shadow">
+                Nunca me queda duda que tu eres el amor de mi vida.
+            </p>
+        </div>
+    </section>
+
+    <!-- Contenedor principal -->
+    <div class="container mx-auto max-w-6xl p-4 sm:p-8 relative z-20 -mt-16">
+        <main>
+            
+            <!-- ======================= -->
+            <!--   PÁGINA 3: VIDEOS       -->
+            <!-- ======================= -->
+            <section id="page-video" class="bg-white p-8 sm:p-12 rounded-2xl shadow-lg border border-rose-50">
+                <h2 class="font-heading text-4xl text-center text-rose-600 mb-8 border-b pb-4 border-rose-100">
+                    <span class="inline-block transform hover:scale-110 transition-transform duration-300"></span> Videos especiales
+                </h2>
+                
+                <!-- CONTENEDOR PRINCIPAL -->
+                <div class="flex flex-col gap-12 w-full">
+                    
+                    <!-- VIDEO 1 (GRANDE - SUPERIOR) -->
+                    <div class="video-card w-full">
+                        <div class="flex items-center gap-4 mb-4">
+                            <div class="h-px bg-rose-200 flex-1"></div>
+                            <h3 class="font-heading text-3xl text-rose-500"></h3>
+                        </div>
+                        <div class="aspect-video w-full bg-black rounded-2xl shadow-2xl overflow-hidden ring-4 ring-rose-100">
+                            <!-- Sustituye el src con tu primer enlace -->
+                            <iframe 
+                                class="w-full h-full"
+                                src="imagenes/mesesjuntos.mp4" 
+                                title="Video 1" 
+                                frameborder="0" 
+                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                                allowfullscreen>
+                            </iframe>
+                        </div>
+                        <p class="text-center text-gray-500 mt-3 italic">Estos momentos inolvidables...</p>
+                    </div>
+
+                    </div>
+
+                </div>
+
+            </section>
+
+        </main>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-rose-50 text-center py-12 mt-20 relative z-10">
+        <p class="text-lg text-gray-700">
+            Hecho con todo mi amor para ti,
+        </p>
+        <p class="font-script text-6xl text-rose-600 mt-2">
+            Yaremi Arlette
+        </p>
+    </footer>
+
+    <!-- JavaScript -->
+    <script>
+        // --- LÓGICA DE LOGOUT (SALIR) ---
+        const logoutButton = document.getElementById('logout-button');
+        
+        if (logoutButton) {
+            logoutButton.addEventListener('click', () => {
+                // Redirige al usuario a la página de login
+                window.location.href = 'index.html';
+            });
+        }
+
+        // --- ANIMACIÓN DE CORAZONES DE FONDO ---
+        // Crea corazones flotantes ocasionalmente para dar ambiente
+        function createFloatingHeart() {
+            const heart = document.createElement('div');
+            heart.classList.add('heart-particle');
+            
+            // Variedad de emojis
+            const shapes = ['❤️', '💖', '✨', '💕'];
+            heart.innerHTML = shapes[Math.floor(Math.random() * shapes.length)];
+            
+            // Posición horizontal aleatoria
+            heart.style.left = Math.random() * 100 + 'vw';
+            
+            // Movimiento lateral aleatorio
+            const randomX = (Math.random() - 0.5) * 200; 
+            heart.style.setProperty('--random-x', randomX + 'px');
+            
+            // Tamaño aleatorio
+            const randomScale = Math.random() * 0.5 + 0.5; // Entre 0.5 y 1
+            heart.style.transform = `scale(${randomScale})`;
+
+            document.body.appendChild(heart);
+            
+            // Limpiar después de la animación
+            setTimeout(() => {
+                heart.remove();
+            }, 6000);
+        }
+
+        // Crear un corazón cada cierto tiempo
+        setInterval(createFloatingHeart, 1500);
+
+        // Crear algunos al inicio
+        for(let i=0; i<5; i++) {
+            setTimeout(createFloatingHeart, i * 800);
+        }
+    </script>
+
+</body>
+</html>

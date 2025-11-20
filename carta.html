@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CARTA - Buzón Compartido</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Lato:wght@400;700&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Lato', 'sans-serif'],
+                        heading: ['Playfair Display', 'serif'],
+                        script: ['Great Vibes', 'cursive'],
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <style>
+        .letter-input {
+            background-image: linear-gradient(#fdf2f8 1px, transparent 1px);
+            background-size: 100% 2rem;
+            line-height: 2rem;
+            background-attachment: local;
+        }
+    </style>
+</head>
+<body class="bg-rose-50 font-sans text-gray-700">
+
+    <!-- BARRA SUPERIOR -->
+    <div class="bg-white p-4 shadow-sm sticky top-0 z-50">
+        <div class="container mx-auto max-w-5xl flex justify-between items-center">
+            <div class="font-heading text-3xl font-bold text-gray-800">
+                <span class="w-20 h-20 mx-auto block rounded-full"><img src="imagenes/logo.png" onerror="this.style.display='none'"></span>
+            </div>
+            <nav class="flex gap-4 sm:gap-6 flex-wrap justify-end">
+                <a href="index.html" class="text-gray-600 font-medium hover:text-rose-600 transition-colors duration-200">Inicio</a>
+                <a href="galeria.html" class="text-gray-600 font-medium hover:text-rose-600 transition-colors duration-200">Galería</a>
+                <a href="video.html" class="text-gray-600 font-medium hover:text-rose-600 transition-colors duration-200">Video</a>
+                <a href="carta.html" class="text-rose-600 font-bold transition-colors duration-200">Carta</a>
+                <a href="juegos.html" class="text-gray-600 font-medium hover:text-rose-600 transition-colors duration-200">Juegos</a>
+                <button id="logout-button" class="text-gray-500 font-medium hover:text-rose-600 transition-colors duration-200 border-l pl-4 sm:pl-6 border-gray-200">Salir</button>
+            </nav>
+        </div>
+    </div>
+
+    <!-- HERO -->
+    <section class="bg-gradient-to-r from-pink-300 to-rose-200 text-center py-24 sm:py-32 relative overflow-hidden">
+        <div class="relative z-10">
+            <h1 class="font-heading text-7xl sm:text-8xl text-white font-bold tracking-tight mb-4 drop-shadow-lg">Buzón de amor</h1>
+            <p class="font-heading text-2xl sm:text-3xl text-white opacity-90 mb-6 drop-shadow">
+                Lo que escribas aquí se guardará para siempre en el corazón.
+            </p>
+        </div>
+    </section>
+
+    <!-- CONTENIDO -->
+    <div class="container mx-auto max-w-5xl p-4 sm:p-8 relative z-10 -mt-16 space-y-8">
+        
+        <!-- CARTA FIJA (Tu dedicatoria original) -->
+        <section class="bg-white p-8 sm:p-12 rounded-2xl shadow-lg mb-8">
+            <h2 class="font-heading text-4xl text-center text-rose-600 mb-8 border-b pb-4 border-rose-100">Cartitas</h2>
+            <div class="max-w-3xl mx-auto">
+                <p class="text-lg leading-relaxed text-gray-700 mb-8">
+                    Mi amor,<br><br>
+                    Espero y esta pagina te guste mucho, que disfrutes cada una de sus funciones asi como que disfrite muchísimo hacerla. Hace mucho quería hacerte algo así y el día de hoy 20/11/25 termine por fin.
+                    Para que puedas disfrutar bueno ambos podamos disfrutar y aprovecharla al máximo.
+                    Esto es algo pequeñito de lo mucho que te mereces, eres un novio tan bueno que de verdad aveces me pregunto "¿Esto es real?", "¿Qué hice para merecer a alguien tan bueno en mi vida?".
+                    Gracias por todo lo que haces por mi mi amor te amo. <br><br>
+                    Te amo por siempre.
+                </p>
+                <p class="font-script text-5xl text-rose-500 text-right pr-4">Arletita</p>
+            </div>
+        </section>
+
+        <!-- BUZÓN REAL-TIME (Donde pueden escribirse) -->
+        <section class="bg-white p-8 sm:p-12 rounded-2xl shadow-lg">
+            <div class="flex flex-col sm:flex-row justify-between items-center mb-8 border-b border-rose-100 pb-4 gap-4">
+                <h2 class="font-heading text-3xl text-rose-600">Cartas recibidas 💌</h2>
+                <button id="writeBtn" class="bg-rose-500 text-white px-6 py-2 rounded-full font-bold shadow-md hover:bg-rose-600 transition transform hover:scale-105 flex items-center gap-2">
+                    <i class="fas fa-pen-fancy"></i> Escribir nueva
+                </button>
+            </div>
+
+            <!-- FORMULARIO -->
+            <div id="writeForm" class="hidden mb-8 bg-rose-50 p-6 rounded-xl border border-rose-200 shadow-inner">
+                <input type="text" id="letterTitle" placeholder="Título de tu carta..." class="w-full mb-4 p-3 rounded-lg border border-rose-200 focus:outline-none focus:border-rose-400 focus:ring-2 focus:ring-rose-200 font-heading text-xl text-rose-700 bg-white">
+                <textarea id="letterBody" rows="8" placeholder="Escribe aquí tu mensaje..." class="letter-input w-full mb-4 p-3 rounded-lg border border-rose-200 focus:outline-none focus:border-rose-400 font-sans text-gray-700 bg-white"></textarea>
+                <div class="flex justify-end gap-3">
+                    <button id="cancelBtn" class="text-gray-500 font-bold px-4 py-2 hover:text-gray-700 hover:bg-gray-100 rounded-lg transition">Cancelar</button>
+                    <button id="saveBtn" class="bg-rose-500 text-white px-6 py-2 rounded-lg font-bold shadow hover:bg-rose-600 transition flex items-center gap-2">
+                        <i class="fas fa-paper-plane"></i> Enviar
+                    </button>
+                </div>
+            </div>
+
+            <!-- LISTA DE CARTAS -->
+            <div id="lettersContainer" class="space-y-6">
+                <p class="text-center text-gray-400 italic py-8 animate-pulse">Cargando cartas...</p>
+            </div>
+        </section>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getFirestore, collection, addDoc, deleteDoc, doc, onSnapshot, serverTimestamp, query } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { getAuth, signInWithCustomToken, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+
+        const firebaseConfig = JSON.parse(__firebase_config);
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+        const auth = getAuth(app);
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app';
+        
+        const localUser = localStorage.getItem('currentUser') || 'Anónimo';
+
+        // Autenticación
+        const initAuth = async () => {
+            if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+                await signInWithCustomToken(auth, __initial_auth_token);
+            } else {
+                await signInAnonymously(auth);
+            }
+        };
+        initAuth();
+
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                initMailbox();
+            }
+        });
+
+        // UI Logic
+        const writeBtn = document.getElementById('writeBtn');
+        const writeForm = document.getElementById('writeForm');
+        const cancelBtn = document.getElementById('cancelBtn');
+        const saveBtn = document.getElementById('saveBtn');
+        
+        writeBtn.onclick = () => { writeForm.classList.remove('hidden'); writeBtn.classList.add('hidden'); };
+        cancelBtn.onclick = () => { writeForm.classList.add('hidden'); writeBtn.classList.remove('hidden'); };
+
+        // LÓGICA DE BASE DE DATOS
+        function initMailbox() {
+            // Usamos collection simple para evitar errores de índices en Firebase
+            const q = collection(db, 'artifacts', appId, 'public', 'data', 'letters');
+            
+            onSnapshot(q, (snapshot) => {
+                const container = document.getElementById('lettersContainer');
+                container.innerHTML = '';
+                
+                if (snapshot.empty) {
+                    container.innerHTML = '<p class="text-center text-gray-400 italic py-8">El buzón está vacío. ¡Escribe la primera carta! 💌</p>';
+                    return;
+                }
+
+                // Convertimos a array y ordenamos en memoria por fecha descendente
+                const letters = [];
+                snapshot.forEach(docSnap => {
+                    letters.push({ id: docSnap.id, ...docSnap.data() });
+                });
+                
+                letters.sort((a, b) => {
+                    const timeA = a.timestamp ? a.timestamp.toMillis() : 0;
+                    const timeB = b.timestamp ? b.timestamp.toMillis() : 0;
+                    return timeB - timeA; // Más reciente primero
+                });
+
+                letters.forEach(letter => {
+                    const dateStr = letter.timestamp ? new Date(letter.timestamp.toDate()).toLocaleDateString() : 'Reciente';
+                    
+                    const div = document.createElement('div');
+                    div.className = 'bg-rose-50 p-6 sm:p-8 rounded-xl border border-rose-100 relative group hover:shadow-md transition-all duration-300';
+                    div.innerHTML = `
+                        <div class="flex justify-between items-start mb-4 border-b border-rose-200 pb-2">
+                            <div>
+                                <h3 class="font-heading text-2xl text-rose-600">${letter.title}</h3>
+                                <span class="text-xs text-gray-500 font-bold uppercase">De: ${letter.author}</span>
+                            </div>
+                            <span class="text-xs text-gray-400 font-sans bg-white px-2 py-1 rounded-full border border-rose-100">${dateStr}</span>
+                        </div>
+                        <div class="prose prose-rose max-w-none">
+                            <p class="text-gray-700 whitespace-pre-wrap font-sans leading-relaxed text-lg">${letter.content}</p>
+                        </div>
+                        <div class="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity">
+                            <button onclick="window.deleteLetter('${letter.id}')" class="text-red-300 hover:text-red-500 hover:bg-red-50 p-2 rounded-full transition" title="Borrar carta">
+                                <i class="fas fa-trash-alt"></i>
+                            </button>
+                        </div>
+                    `;
+                    container.appendChild(div);
+                });
+            });
+        }
+
+        saveBtn.onclick = async () => {
+            const title = document.getElementById('letterTitle').value.trim();
+            const content = document.getElementById('letterBody').value.trim();
+            
+            if(!title || !content) { alert('Por favor escribe un título y un mensaje ❤️'); return; }
+            
+            // Feedback visual inmediato
+            saveBtn.textContent = "Enviando...";
+            saveBtn.disabled = true;
+            
+            try {
+                await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'letters'), {
+                    title, 
+                    content, 
+                    author: localUser, 
+                    timestamp: serverTimestamp()
+                });
+                
+                // Limpiar
+                document.getElementById('letterTitle').value = '';
+                document.getElementById('letterBody').value = '';
+                writeForm.classList.add('hidden');
+                writeBtn.classList.remove('hidden');
+                alert('¡Carta enviada al buzón! ☁️💌');
+            } catch (e) {
+                console.error(e);
+                alert('Error al enviar, intenta de nuevo.');
+            } finally {
+                saveBtn.textContent = "Enviar";
+                saveBtn.disabled = false;
+                saveBtn.innerHTML = '<i class="fas fa-paper-plane"></i> Enviar';
+            }
+        };
+
+        // Exponemos la función deleteLetter al scope global para que funcione en el HTML
+        window.deleteLetter = async (id) => {
+            if(confirm('¿Estás seguro de querer borrar esta carta permanentemente?')) {
+                await deleteDoc(doc(db, 'artifacts', appId, 'public', 'data', 'letters', id));
+            }
+        };
+
+        document.getElementById('logout-button').onclick = () => window.location.href = 'login.html';
+    </script>
+</body>
+</html>
