@@ -1,0 +1,938 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- 1. Título específico de la página -->
+    <title>INICIO</title>
+    
+    <!-- 2. Carga de Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- 3. Carga de Fuentes de Google -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Lato:wght@400;700&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
+    <!-- Font Awesome para iconos -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
+    <!-- 4. Configuración de Tailwind -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Lato', 'sans-serif'],
+                        heading: ['Playfair Display', 'serif'],
+                        script: ['Great Vibes', 'cursive'],
+                    },
+                    colors: {
+                        rose: {
+                            50: '#fff1f2',
+                            100: '#ffe4e6',
+                            200: '#fecdd3',
+                            300: '#fda4af',
+                            400: '#fb7185',
+                            500: '#f43f5e',
+                            600: '#e11d48',
+                            700: '#be123c',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <!-- 5. Estilos compartidos y específicos -->
+    <style>
+        /* Animación de corazones */
+        .heart-particle {
+            position: fixed;
+            font-size: 24px;
+            color: #e11d48;
+            opacity: 1;
+            animation: floatUp 4s ease-out forwards;
+            pointer-events: none;
+            z-index: 1000;
+        }
+
+        @keyframes floatUp {
+            0% { transform: translateY(0) translateX(0) scale(1); opacity: 1; }
+            100% { transform: translateY(-800px) translateX(var(--random-x)) scale(0.5); opacity: 0; }
+        }
+
+        /* Estilos del Carrusel */
+        .carousel-track {
+            transition: transform 0.5s ease-in-out;
+        }
+        
+        /* Estilos para las Notas (Post-its) */
+        .note-card {
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .note-card:hover {
+            transform: translateY(-5px) rotate(1deg);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+            z-index: 10;
+        }
+        
+        /* Botón de eliminar nota (oculto por defecto, visible en hover) */
+        .delete-note-btn {
+            opacity: 0;
+            transition: opacity 0.2s;
+        }
+        .note-card:hover .delete-note-btn {
+            opacity: 1;
+        }
+        /* En móvil siempre visible */
+        @media (max-width: 640px) {
+            .delete-note-btn { opacity: 1; }
+        }
+
+        /* Estilos para el Canvas de Dibujo */
+        canvas {
+            touch-action: none; /* Prevenir scroll al dibujar en móvil */
+            cursor: crosshair;
+            display: block; /* Importante para evitar scrollbars fantasma */
+        }
+
+        /* Modal de Eventos */
+        .modal-overlay {
+            background-color: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(2px);
+        }
+
+        /* Rango personalizado para que se vea mejor */
+        input[type=range] {
+            -webkit-appearance: none; 
+            background: transparent; 
+        }
+        input[type=range]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            height: 20px;
+            width: 20px;
+            border-radius: 50%;
+            background: #e11d48;
+            cursor: pointer;
+            margin-top: -8px; 
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+        input[type=range]::-webkit-slider-runnable-track {
+            width: 100%;
+            height: 4px;
+            cursor: pointer;
+            background: #e5e7eb;
+            border-radius: 2px;
+        }
+    </style>
+</head>
+<body class="bg-rose-50 font-sans text-gray-700 relative">
+
+    <!-- MODAL PARA EVENTOS DEL CALENDARIO (Oculto por defecto) -->
+    <div id="eventModal" class="hidden fixed inset-0 z-[100] flex items-center justify-center modal-overlay p-4">
+        <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full p-6 transform transition-all scale-100">
+            <div class="flex justify-between items-center mb-4">
+                <h3 id="modalDateTitle" class="font-heading text-2xl text-rose-600 font-bold">Eventos del día</h3>
+                <button onclick="closeEventModal()" class="text-gray-400 hover:text-gray-600 text-xl"><i class="fas fa-times"></i></button>
+            </div>
+            
+            <!-- Lista de eventos existentes -->
+            <ul id="eventList" class="mb-4 space-y-2 max-h-40 overflow-y-auto">
+                <!-- Se llena con JS -->
+            </ul>
+
+            <!-- Formulario para agregar evento -->
+            <div class="border-t pt-4 border-gray-100">
+                <label class="block text-sm font-medium text-gray-600 mb-1">Agregar nuevo evento:</label>
+                <div class="flex gap-2">
+                    <input type="text" id="newEventInput" class="flex-1 border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:border-rose-500" placeholder="Ej: Cena juntos 🍷">
+                    <button onclick="saveEvent()" class="bg-rose-500 text-white px-4 py-2 rounded-lg hover:bg-rose-600 transition font-bold">
+                        <i class="fas fa-plus"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Barra Superior -->
+    <div class="bg-white p-4 shadow-sm sticky top-0 z-50">
+        <div class="container mx-auto max-w-5xl flex justify-between items-center">
+            
+            <!-- Logo/Iniciales -->
+            <div class="font-heading text-3xl font-bold text-gray-800">
+                <span class="w-20 h-20 mx-auto block rounded-full"><img src="imagenes/logo.png" onerror="this.style.display='none'"></span>
+            </div>
+            
+            <!-- Menú de Navegación -->
+            <nav class="flex gap-4 sm:gap-6 flex-wrap justify-end items-center">
+                <a href="index.html" class="text-rose-600 font-bold transition-colors duration-200">Inicio</a>
+                <a href="galeria.html" class="text-gray-600 font-medium hover:text-rose-600 transition-colors duration-200">Galería</a>
+                <a href="video.html" class="text-gray-600 font-medium hover:text-rose-600 transition-colors duration-200">Video</a>
+                <a href="carta.html" class="text-gray-600 font-medium hover:text-rose-600 transition-colors duration-200">Carta</a>
+                <a href="juegos.html" class="text-gray-600 font-medium hover:text-rose-600 transition-colors duration-200">Juegos</a>
+                
+                <button id="logout-button" class="text-gray-500 font-medium hover:text-rose-600 transition-colors duration-200 border-l pl-4 sm:pl-6 border-gray-200">
+                    Salir
+                </button>
+            </nav>
+        </div>
+    </div>
+
+    <!-- Hero Section -->
+    <section class="bg-gradient-to-r from-pink-300 to-rose-200 text-center py-20 sm:py-28 relative overflow-hidden">
+        <div class="relative z-10 px-4">
+            <h1 class="font-heading text-6xl sm:text-8xl text-white font-bold tracking-tight mb-4 drop-shadow-lg">
+                Para Mi Amor
+            </h1>
+            <p class="font-heading text-xl sm:text-3xl text-white opacity-90 mb-6 drop-shadow">
+                Bienvenida a nuestro rincón especial
+            </p>
+        </div>
+    </section>
+
+    <!-- Contenedor principal -->
+    <div class="container mx-auto max-w-5xl p-4 sm:p-8 relative z-10 -mt-16 space-y-12">
+        
+        <!-- ======================= -->
+        <!-- 1. CARRUSEL DE FOTOS    -->
+        <!-- ======================= -->
+        <section class="bg-white p-4 rounded-2xl shadow-lg overflow-hidden">
+            <h2 class="font-heading text-2xl text-rose-600 mb-4 text-center">Nuestros Recuerdos</h2>
+            
+            <div class="relative w-full max-w-4xl mx-auto group">
+                <!-- Contenedor de imágenes (overflow hidden) -->
+                <div class="overflow-hidden rounded-xl aspect-video bg-rose-100 relative">
+                    <div id="carouselTrack" class="carousel-track flex h-full">
+                        <!-- IMAGEN 1 -->
+                        <div class="min-w-full h-full">
+                            <img src="imagenes/uno.jpeg" class="w-full h-full object-cover" onerror="this.src='https://placehold.co/800x450/fbcfe8/ec4899?text=Nuestra+Foto+1'">
+                        </div>
+                        <!-- IMAGEN 2 -->
+                        <div class="min-w-full h-full">
+                            <img src="imagenes/dos.jpeg" class="w-full h-full object-cover" onerror="this.src='https://placehold.co/800x450/f9a8d4/be185d?text=Nuestra+Foto+2'">
+                        </div>
+                        <!-- IMAGEN 3 -->
+                        <div class="min-w-full h-full">
+                            <img src="imagenes/tres.jpeg" class="w-full h-full object-cover" onerror="this.src='https://placehold.co/800x450/fce7f3/9d174d?text=Nuestra+Foto+3'">
+                        </div>
+                        <!-- IMAGEN 4 -->
+                        <div class="min-w-full h-full">
+                            <img src="imagenes/cuatro.jpeg" class="w-full h-full object-cover" onerror="this.src='https://placehold.co/800x450/ffe4e6/be123c?text=Nuestra+Foto+4'">
+                        </div>
+                    </div>
+                    
+                    <!-- Botones de navegación -->
+                    <button id="prevBtn" class="absolute top-1/2 left-4 -translate-y-1/2 bg-white/80 hover:bg-white text-rose-600 p-3 rounded-full shadow-lg opacity-0 group-hover:opacity-100 transition-all duration-300">
+                        <i class="fas fa-chevron-left"></i>
+                    </button>
+                    <button id="nextBtn" class="absolute top-1/2 right-4 -translate-y-1/2 bg-white/80 hover:bg-white text-rose-600 p-3 rounded-full shadow-lg opacity-0 group-hover:opacity-100 transition-all duration-300">
+                        <i class="fas fa-chevron-right"></i>
+                    </button>
+                    
+                    <!-- Indicadores (puntos) -->
+                    <div class="absolute bottom-4 left-0 right-0 flex justify-center gap-2">
+                        <div class="dot w-3 h-3 rounded-full bg-white/50 cursor-pointer active-dot" data-index="0"></div>
+                        <div class="dot w-3 h-3 rounded-full bg-white/50 cursor-pointer" data-index="1"></div>
+                        <div class="dot w-3 h-3 rounded-full bg-white/50 cursor-pointer" data-index="2"></div>
+                        <div class="dot w-3 h-3 rounded-full bg-white/50 cursor-pointer" data-index="3"></div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ======================= -->
+        <!-- 2. MENSAJE DE BIENVENIDA -->
+        <!-- ======================= -->
+        <section class="bg-white p-8 sm:p-12 rounded-2xl shadow-lg text-center">
+            <h2 class="font-heading text-4xl text-rose-600 mb-6 border-b pb-4 border-rose-100 inline-block">Nuestra Historia...</h2>
+            <p class="text-lg leading-relaxed text-gray-700 max-w-3xl mx-auto">
+                ¡Hola, mi amor! He actualizado este pequeño rincón. Ahora puedes <b>agendar citas</b> en nuestro calendario, <b>borrar notas</b> que ya no quieras y usar la <b>goma de borrar</b> en tus dibujos.
+                <br><br>
+                Te amo más de lo que las palabras pueden expresar.
+            </p>
+        </section>
+
+        <!-- Grid para Calendario y Notas -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            
+            <!-- ======================= -->
+            <!-- 3. CALENDARIO (CON EVENTOS) -->
+            <!-- ======================= -->
+            <section class="bg-white p-6 rounded-2xl shadow-lg lg:col-span-1 h-fit">
+                <div class="flex flex-col gap-4 mb-6">
+                    <div class="flex justify-between items-center">
+                        <h3 class="font-heading text-2xl text-rose-600">Calendario</h3>
+                        <div class="text-rose-400 text-2xl"></div>
+                    </div>
+                    <!-- SELECTORES DE FECHA -->
+                    <div class="flex gap-2">
+                        <select id="monthSelect" class="bg-rose-50 border border-rose-200 text-gray-700 text-sm rounded-lg focus:ring-rose-500 focus:border-rose-500 block w-full p-2.5 font-bold">
+                            <!-- JS llenará esto -->
+                        </select>
+                        <select id="yearSelect" class="bg-rose-50 border border-rose-200 text-gray-700 text-sm rounded-lg focus:ring-rose-500 focus:border-rose-500 block w-full p-2.5 font-bold">
+                            <!-- JS llenará esto (2002-3000) -->
+                        </select>
+                    </div>
+                </div>
+                
+                <!-- Días de la semana -->
+                <div class="grid grid-cols-7 text-center text-xs font-bold text-gray-500 mb-2">
+                    <div>DOM</div>
+                    <div>LUN</div>
+                    <div>MAR</div>
+                    <div>MIE</div>
+                    <div>JUE</div>
+                    <div>VIE</div>
+                    <div>SAB</div>
+                </div>
+                
+                <!-- Días del mes (Generado por JS) -->
+                <div id="calendarGrid" class="grid grid-cols-7 text-center gap-1 text-sm">
+                    <!-- JS insertará los días aquí -->
+                </div>
+                
+                <div class="mt-4 text-center">
+                    <p class="text-xs text-rose-400 italic">Haz clic en un día para agregar un evento ✨</p>
+                </div>
+            </section>
+
+            <!-- ======================= -->
+            <!-- 4. MURO DE AMOR (MEJORADO) -->
+            <!-- ======================= -->
+            <section class="bg-white p-6 rounded-2xl shadow-lg lg:col-span-2">
+                <h3 class="font-heading text-2xl text-rose-600 mb-6 border-b border-rose-100 pb-2">Muro de amor y dibujitos 🎨</h3>
+                
+                <!-- Tabs para cambiar entre Texto y Dibujo -->
+                <div class="flex gap-4 mb-6">
+                    <button id="tab-text" class="px-4 py-2 bg-rose-500 text-white rounded-full font-bold text-sm shadow hover:bg-rose-600 transition">Escribir nota</button>
+                    <button id="tab-draw" class="px-4 py-2 bg-rose-100 text-rose-600 rounded-full font-bold text-sm shadow hover:bg-rose-200 transition">Hacer dibujo</button>
+                </div>
+
+                <!-- Panel: ESCRIBIR NOTA CON SELECCIÓN DE COLOR -->
+                <div id="panel-text" class="mb-8">
+                    <!-- TextArea con clase dinámica para previsualizar el color (por defecto amarillo) -->
+                    <textarea id="noteInput" class="w-full p-4 border-2 border-rose-100 rounded-xl focus:outline-none focus:border-rose-400 bg-yellow-100 h-32 resize-none transition-colors duration-300" placeholder="Escribe una notita de amor aquí..."></textarea>
+                    
+                    <div class="flex justify-between items-center mt-2">
+                        <!-- Selector de Colores para Notas -->
+                        <div class="flex gap-2">
+                            <button class="w-6 h-6 rounded-full bg-yellow-100 border-2 border-gray-300 hover:scale-110 transition ring-2 ring-offset-1 ring-transparent focus:ring-rose-400" onclick="selectNoteColor('bg-yellow-100')" title="Amarillo"></button>
+                            <button class="w-6 h-6 rounded-full bg-pink-100 border-2 border-gray-300 hover:scale-110 transition ring-2 ring-offset-1 ring-transparent focus:ring-rose-400" onclick="selectNoteColor('bg-pink-100')" title="Rosa"></button>
+                            <button class="w-6 h-6 rounded-full bg-blue-100 border-2 border-gray-300 hover:scale-110 transition ring-2 ring-offset-1 ring-transparent focus:ring-rose-400" onclick="selectNoteColor('bg-blue-100')" title="Azul"></button>
+                            <button class="w-6 h-6 rounded-full bg-green-100 border-2 border-gray-300 hover:scale-110 transition ring-2 ring-offset-1 ring-transparent focus:ring-rose-400" onclick="selectNoteColor('bg-green-100')" title="Verde"></button>
+                            <button class="w-6 h-6 rounded-full bg-purple-100 border-2 border-gray-300 hover:scale-110 transition ring-2 ring-offset-1 ring-transparent focus:ring-rose-400" onclick="selectNoteColor('bg-purple-100')" title="Morado"></button>
+                        </div>
+
+                        <button id="addNoteBtn" class="bg-rose-500 text-white px-6 py-2 rounded-lg font-bold hover:bg-rose-600 transition shadow">
+                            Pegar nota
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Panel: DIBUJAR (PALETA Y PINCELES) -->
+                <div id="panel-draw" class="mb-8 hidden">
+                    <!-- Canvas Container -->
+                    <div class="border-2 border-dashed border-rose-300 rounded-xl overflow-hidden bg-white relative touch-none cursor-crosshair">
+                        <canvas id="drawingCanvas" width="500" height="300" class="w-full h-64 sm:h-80 block bg-white"></canvas>
+                    </div>
+                    
+                    <!-- Controles de Dibujo ARREGLADOS -->
+                    <div class="mt-4 space-y-4">
+                        <!-- Grosor del Pincel (DISEÑO FIJO PARA NO SALIRSE) -->
+                        <div class="flex items-center gap-4 bg-gray-50 p-3 rounded-xl border border-gray-100 shadow-sm">
+                            <span class="text-sm font-bold text-gray-500 whitespace-nowrap">Grosor:</span>
+                            <!-- Slider -->
+                            <input type="range" id="brushSize" min="1" max="40" value="5" class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer">
+                            
+                            <!-- Vista previa encapsulada en caja fija para evitar desbordes -->
+                            <div class="w-10 h-10 bg-white border border-gray-200 rounded-lg flex items-center justify-center shadow-inner flex-shrink-0 overflow-hidden">
+                                <div id="brushPreview" class="rounded-full bg-black" style="width: 5px; height: 5px;"></div>
+                            </div>
+                        </div>
+
+                        <!-- Paleta de Colores Extendida -->
+                        <div class="flex flex-wrap gap-2 justify-between items-center">
+                            <div class="flex flex-wrap gap-2 items-center">
+                                <!-- GOMA DE BORRAR -->
+                                <button onclick="activateEraser()" id="eraserBtn" class="w-10 h-10 rounded-lg border-2 border-gray-300 bg-white hover:bg-gray-100 flex items-center justify-center text-gray-600 transition shadow-sm" title="Goma de borrar">
+                                    <i class="fas fa-eraser"></i>
+                                </button>
+                                <div class="w-px h-8 bg-gray-300 mx-1"></div>
+
+                                <!-- Colores Básicos -->
+                                <button class="color-btn w-8 h-8 rounded-full border-2 border-gray-200 hover:scale-110 transition shadow-sm bg-black" onclick="changeColor('#000000')"></button>
+                                <button class="color-btn w-8 h-8 rounded-full border-2 border-gray-200 hover:scale-110 transition shadow-sm bg-gray-500" onclick="changeColor('#6b7280')"></button>
+                                <button class="color-btn w-8 h-8 rounded-full border-2 border-gray-200 hover:scale-110 transition shadow-sm bg-red-600" onclick="changeColor('#dc2626')"></button>
+                                <button class="color-btn w-8 h-8 rounded-full border-2 border-gray-200 hover:scale-110 transition shadow-sm bg-orange-500" onclick="changeColor('#f97316')"></button>
+                                <button class="color-btn w-8 h-8 rounded-full border-2 border-gray-200 hover:scale-110 transition shadow-sm bg-yellow-400" onclick="changeColor('#facc15')"></button>
+                                <button class="color-btn w-8 h-8 rounded-full border-2 border-gray-200 hover:scale-110 transition shadow-sm bg-green-500" onclick="changeColor('#22c55e')"></button>
+                                <button class="color-btn w-8 h-8 rounded-full border-2 border-gray-200 hover:scale-110 transition shadow-sm bg-teal-400" onclick="changeColor('#2dd4bf')"></button>
+                                <button class="color-btn w-8 h-8 rounded-full border-2 border-gray-200 hover:scale-110 transition shadow-sm bg-blue-500" onclick="changeColor('#3b82f6')"></button>
+                                <button class="color-btn w-8 h-8 rounded-full border-2 border-gray-200 hover:scale-110 transition shadow-sm bg-indigo-600" onclick="changeColor('#4f46e5')"></button>
+                                <button class="color-btn w-8 h-8 rounded-full border-2 border-gray-200 hover:scale-110 transition shadow-sm bg-purple-500" onclick="changeColor('#a855f7')"></button>
+                                <button class="color-btn w-8 h-8 rounded-full border-2 border-gray-200 hover:scale-110 transition shadow-sm bg-pink-500" onclick="changeColor('#ec4899')"></button>
+                                <button class="color-btn w-8 h-8 rounded-full border-2 border-gray-200 hover:scale-110 transition shadow-sm bg-rose-600" onclick="changeColor('#e11d48')"></button>
+                                
+                                <!-- Selector Personalizado -->
+                                <div class="relative group">
+                                    <input type="color" id="customColorPicker" class="opacity-0 absolute inset-0 w-full h-full cursor-pointer" onchange="changeColor(this.value)">
+                                    <div class="w-8 h-8 rounded-full border-2 border-gray-200 bg-gradient-to-br from-red-500 via-green-500 to-blue-500 shadow-sm flex items-center justify-center">
+                                        <i class="fas fa-plus text-white text-xs drop-shadow-md"></i>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="flex gap-2 mt-2 sm:mt-0">
+                                <button onclick="clearCanvas()" class="text-gray-500 text-sm font-bold hover:text-red-500 border border-gray-300 px-3 py-1 rounded-lg hover:bg-gray-50">
+                                    <i class="fas fa-trash-alt mr-1"></i> Limpiar
+                                </button>
+                                <button onclick="saveDrawing()" class="bg-rose-500 text-white px-4 py-1 rounded-lg font-bold hover:bg-rose-600 transition text-sm shadow">
+                                    Guardar 🖼️
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Área donde aparecen las notas y dibujos guardados -->
+                <div id="notesContainer" class="grid grid-cols-1 sm:grid-cols-2 gap-4 p-4 bg-rose-50 rounded-xl min-h-[200px] border-2 border-dashed border-rose-200">
+                    <p id="emptyNotesMsg" class="col-span-full text-center text-gray-400 italic self-center">Aún no hay notitas. ¡Escribe la primera!</p>
+                </div>
+            </section>
+
+        </div>
+
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-rose-50 text-center py-12 mt-20">
+        <p class="text-lg text-gray-700">Hecho con todo mi amor para ti,</p>
+        <p class="font-script text-6xl text-rose-600 mt-2">Yaremi Arlette</p>
+    </footer>
+
+    <!-- SCRIPTS -->
+    <script>
+        // --- LÓGICA DE LOGOUT ---
+        const logoutButton = document.getElementById('logout-button');
+        if (logoutButton) {
+            logoutButton.addEventListener('click', () => {
+                window.location.href = 'login.html';
+            });
+        }
+
+        // ================================
+        // 1. LÓGICA DEL CARRUSEL
+        // ================================
+        const track = document.getElementById('carouselTrack');
+        const prevBtn = document.getElementById('prevBtn');
+        const nextBtn = document.getElementById('nextBtn');
+        const dots = document.querySelectorAll('.dot');
+        let currentIndex = 0;
+        const totalSlides = dots.length;
+
+        function updateCarousel() {
+            if(!track) return;
+            track.style.transform = `translateX(-${currentIndex * 100}%)`;
+            dots.forEach((dot, idx) => {
+                if(idx === currentIndex) {
+                    dot.classList.remove('bg-white/50');
+                    dot.classList.add('bg-rose-600');
+                } else {
+                    dot.classList.add('bg-white/50');
+                    dot.classList.remove('bg-rose-600');
+                }
+            });
+        }
+
+        if(nextBtn) nextBtn.addEventListener('click', () => {
+            currentIndex = (currentIndex + 1) % totalSlides;
+            updateCarousel();
+        });
+
+        if(prevBtn) prevBtn.addEventListener('click', () => {
+            currentIndex = (currentIndex - 1 + totalSlides) % totalSlides;
+            updateCarousel();
+        });
+
+        setInterval(() => {
+            currentIndex = (currentIndex + 1) % totalSlides;
+            updateCarousel();
+        }, 5000);
+        
+        updateCarousel();
+
+
+        // ================================
+        // 2. LÓGICA DEL CALENDARIO + EVENTOS (ACTUALIZADA 2002-3000)
+        // ================================
+        const calendarGrid = document.getElementById('calendarGrid');
+        const monthSelect = document.getElementById('monthSelect');
+        const yearSelect = document.getElementById('yearSelect');
+        
+        const eventModal = document.getElementById('eventModal');
+        const modalDateTitle = document.getElementById('modalDateTitle');
+        const eventList = document.getElementById('eventList');
+        const newEventInput = document.getElementById('newEventInput');
+        
+        // Variables de estado del calendario
+        let displayDate = new Date();
+        let displayMonth = displayDate.getMonth();
+        let displayYear = displayDate.getFullYear();
+        const today = new Date();
+
+        let selectedDateKey = null; 
+        let calendarEvents = JSON.parse(localStorage.getItem('calendarEvents')) || {};
+
+        const months = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"];
+
+        // 1. Inicializar Selectores
+        function initSelectors() {
+            // Llenar Meses
+            months.forEach((m, index) => {
+                const option = document.createElement('option');
+                option.value = index;
+                option.textContent = m;
+                if (index === displayMonth) option.selected = true;
+                monthSelect.appendChild(option);
+            });
+
+            // Llenar Años (2002 - 3000)
+            for (let y = 2002; y <= 3000; y++) {
+                const option = document.createElement('option');
+                option.value = y;
+                option.textContent = y;
+                if (y === displayYear) option.selected = true;
+                yearSelect.appendChild(option);
+            }
+
+            // Listeners
+            monthSelect.addEventListener('change', (e) => {
+                displayMonth = parseInt(e.target.value);
+                renderCalendar();
+            });
+
+            yearSelect.addEventListener('change', (e) => {
+                displayYear = parseInt(e.target.value);
+                renderCalendar();
+            });
+        }
+
+        // 2. Renderizar Calendario
+        function renderCalendar() {
+            if(!calendarGrid) return;
+            
+            const firstDayIndex = new Date(displayYear, displayMonth, 1).getDay();
+            const lastDay = new Date(displayYear, displayMonth + 1, 0).getDate();
+            
+            let days = "";
+
+            // Espacios vacíos
+            for (let x = 0; x < firstDayIndex; x++) {
+                days += `<div></div>`;
+            }
+
+            // Días del mes
+            for (let i = 1; i <= lastDay; i++) {
+                const dayKey = `${displayYear}-${displayMonth}-${i}`;
+                const hasEvents = calendarEvents[dayKey] && calendarEvents[dayKey].length > 0;
+                
+                // Determinar si es "hoy" (solo si coincide año, mes y día real)
+                const isToday = (i === today.getDate() && displayMonth === today.getMonth() && displayYear === today.getFullYear());
+                
+                let dayClasses = "h-8 w-8 flex items-center justify-center rounded-full text-sm cursor-pointer transition relative ";
+                
+                if (isToday) {
+                    dayClasses += "bg-rose-500 text-white font-bold shadow-md hover:bg-rose-600";
+                } else {
+                    dayClasses += "text-gray-700 hover:bg-rose-100";
+                }
+
+                // Indicador de evento (puntito rojo)
+                let eventIndicator = "";
+                if (hasEvents) {
+                    eventIndicator = `<span class="absolute bottom-0 left-1/2 -translate-x-1/2 w-1 h-1 bg-red-500 rounded-full"></span>`;
+                }
+
+                days += `<div class="${dayClasses}" onclick="openEventModal('${dayKey}', ${i})">
+                            ${i}
+                            ${eventIndicator}
+                         </div>`;
+            }
+            calendarGrid.innerHTML = days;
+        }
+
+        function openEventModal(dateKey, dayNumber) {
+            selectedDateKey = dateKey;
+            modalDateTitle.textContent = `Eventos del ${dayNumber} de ${months[displayMonth]} ${displayYear}`;
+            eventModal.classList.remove('hidden');
+            renderEventList();
+        }
+
+        function closeEventModal() {
+            eventModal.classList.add('hidden');
+            newEventInput.value = '';
+        }
+
+        function saveEvent() {
+            const text = newEventInput.value.trim();
+            if (!text || !selectedDateKey) return;
+
+            if (!calendarEvents[selectedDateKey]) {
+                calendarEvents[selectedDateKey] = [];
+            }
+
+            calendarEvents[selectedDateKey].push(text);
+            localStorage.setItem('calendarEvents', JSON.stringify(calendarEvents));
+            
+            newEventInput.value = '';
+            renderEventList();
+            renderCalendar(); // Actualizar puntitos
+        }
+
+        function deleteEvent(index) {
+            if (!selectedDateKey || !calendarEvents[selectedDateKey]) return;
+            
+            calendarEvents[selectedDateKey].splice(index, 1);
+            localStorage.setItem('calendarEvents', JSON.stringify(calendarEvents));
+            renderEventList();
+            renderCalendar();
+        }
+
+        function renderEventList() {
+            eventList.innerHTML = '';
+            const events = calendarEvents[selectedDateKey] || [];
+
+            if (events.length === 0) {
+                eventList.innerHTML = '<li class="text-gray-400 text-sm italic text-center py-2">No hay eventos agendados.</li>';
+                return;
+            }
+
+            events.forEach((evt, index) => {
+                const li = document.createElement('li');
+                li.className = "flex justify-between items-center bg-rose-50 px-3 py-2 rounded text-sm";
+                li.innerHTML = `
+                    <span class="text-gray-700">${evt}</span>
+                    <button onclick="deleteEvent(${index})" class="text-red-400 hover:text-red-600 text-xs font-bold">Borrar</button>
+                `;
+                eventList.appendChild(li);
+            });
+        }
+
+        // Inicialización
+        initSelectors();
+        renderCalendar();
+
+
+        // ================================
+        // 3. LÓGICA DEL MURO (MEJORADA)
+        // ================================
+        
+        const tabText = document.getElementById('tab-text');
+        const tabDraw = document.getElementById('tab-draw');
+        const panelText = document.getElementById('panel-text');
+        const panelDraw = document.getElementById('panel-draw');
+
+        if(tabText && tabDraw) {
+            tabText.addEventListener('click', () => {
+                panelText.classList.remove('hidden');
+                panelDraw.classList.add('hidden');
+                tabText.classList.add('bg-rose-500', 'text-white');
+                tabText.classList.remove('bg-rose-100', 'text-rose-600');
+                tabDraw.classList.add('bg-rose-100', 'text-rose-600');
+                tabDraw.classList.remove('bg-rose-500', 'text-white');
+            });
+
+            tabDraw.addEventListener('click', () => {
+                panelDraw.classList.remove('hidden');
+                panelText.classList.add('hidden');
+                tabDraw.classList.add('bg-rose-500', 'text-white');
+                tabDraw.classList.remove('bg-rose-100', 'text-rose-600');
+                tabText.classList.add('bg-rose-100', 'text-rose-600');
+                tabText.classList.remove('bg-rose-500', 'text-white');
+                
+                // Ajustar canvas al mostrarse (SOLUCIÓN CLAVE)
+                setTimeout(resizeCanvas, 10);
+            });
+        }
+
+        // --- GESTIÓN DE NOTAS CON COLORES ---
+        const notesContainer = document.getElementById('notesContainer');
+        const emptyNotesMsg = document.getElementById('emptyNotesMsg');
+        const noteInput = document.getElementById('noteInput');
+        
+        // Estado para el color de la nota actual (por defecto amarillo)
+        let currentNoteColor = 'bg-yellow-100';
+
+        // Función para cambiar el color seleccionado
+        window.selectNoteColor = function(colorClass) {
+            currentNoteColor = colorClass;
+            // Actualizamos el color del textarea para que veas cómo queda
+            noteInput.classList.remove('bg-yellow-100', 'bg-pink-100', 'bg-blue-100', 'bg-green-100', 'bg-purple-100');
+            noteInput.classList.add(colorClass);
+        };
+        
+        // NUEVO: Listener para usar ENTER
+        noteInput.addEventListener('keydown', function(e) {
+            // Si es enter y NO se presiona shift
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault(); // Evita el salto de línea normal
+                document.getElementById('addNoteBtn').click(); // Simula clic en el botón "Pegar Nota"
+            }
+        });
+
+        // Migración simple y carga
+        let savedItems = JSON.parse(localStorage.getItem('loveWallItems')) || [];
+        savedItems = savedItems.map(item => {
+            if(!item.id) item.id = Date.now() + Math.random();
+            return item;
+        });
+        localStorage.setItem('loveWallItems', JSON.stringify(savedItems));
+
+        function renderItems() {
+            notesContainer.innerHTML = '';
+            if (savedItems.length === 0) {
+                notesContainer.appendChild(emptyNotesMsg);
+                emptyNotesMsg.style.display = 'block';
+                return;
+            } else {
+                emptyNotesMsg.style.display = 'none';
+            }
+
+            // Mostrar notas (más nuevas primero)
+            [...savedItems].reverse().forEach(item => {
+                const div = document.createElement('div');
+                div.classList.add('note-card', 'p-4', 'shadow-md', 'rounded-lg', 'relative', 'group'); 
+                
+                const randomRot = (Math.random() - 0.5) * 6;
+                div.style.transform = `rotate(${randomRot}deg)`;
+
+                // Botón de borrar individual
+                const deleteBtnHTML = `
+                    <button onclick="deleteIndividualNote(${item.id})" 
+                            class="delete-note-btn absolute -top-2 -right-2 bg-white text-red-500 hover:text-red-700 hover:bg-red-50 rounded-full w-7 h-7 flex items-center justify-center shadow-md border border-gray-200 z-20"
+                            title="Eliminar nota">
+                        <i class="fas fa-times"></i>
+                    </button>
+                `;
+
+                if (item.type === 'text') {
+                    // Usar el color guardado o el defecto (amarillo)
+                    const colorClass = item.color || 'bg-yellow-100';
+                    div.classList.add(colorClass);
+                    
+                    div.innerHTML = `
+                        ${deleteBtnHTML}
+                        <p class="font-handwriting text-gray-800 whitespace-pre-wrap font-sans text-lg leading-snug pt-1">"${item.content}"</p>
+                        <div class="text-xs text-gray-500 mt-2 text-right opacity-75">${item.date}</div>
+                    `;
+                } else if (item.type === 'image') {
+                    div.classList.add('bg-white');
+                    div.innerHTML = `
+                        ${deleteBtnHTML}
+                        <img src="${item.content}" class="w-full rounded border border-gray-100">
+                        <div class="text-xs text-gray-400 mt-2 text-right">Dibujo - ${item.date}</div>
+                    `;
+                }
+                notesContainer.appendChild(div);
+            });
+        }
+
+        document.getElementById('addNoteBtn').addEventListener('click', () => {
+            const text = noteInput.value.trim();
+            if (!text) return;
+            
+            const newItem = { 
+                id: Date.now(), 
+                type: 'text', 
+                content: text, 
+                date: new Date().toLocaleDateString(),
+                color: currentNoteColor // Guardamos el color seleccionado
+            };
+            
+            savedItems.push(newItem);
+            localStorage.setItem('loveWallItems', JSON.stringify(savedItems));
+            
+            noteInput.value = '';
+            // No reseteamos el color para que siga escribiendo en el mismo si quiere
+            
+            renderItems();
+        });
+
+        // Función global para eliminar una nota específica
+        window.deleteIndividualNote = function(id) {
+            if(confirm('¿Borrar esta notita?')) {
+                savedItems = savedItems.filter(item => item.id !== id);
+                localStorage.setItem('loveWallItems', JSON.stringify(savedItems));
+                renderItems();
+            }
+        };
+
+        // --- CANVAS MEJORADO Y CORREGIDO ---
+        const canvas = document.getElementById('drawingCanvas');
+        const ctx = canvas.getContext('2d');
+        const brushSizeInput = document.getElementById('brushSize');
+        const brushPreview = document.getElementById('brushPreview');
+        const eraserBtn = document.getElementById('eraserBtn');
+        
+        let painting = false;
+        let brushColor = '#000000';
+        let brushSize = 5;
+        let isErasing = false;
+
+        // Actualizar tamaño del pincel (LOGICA CORREGIDA: width/height en vez de transform)
+        brushSizeInput.addEventListener('input', (e) => {
+            brushSize = e.target.value;
+            // Cambiamos el ancho y alto real, no un transform scale que se desborde
+            brushPreview.style.width = brushSize + 'px';
+            brushPreview.style.height = brushSize + 'px';
+        });
+
+        function resizeCanvas() {
+            const rect = canvas.getBoundingClientRect();
+            if (rect.width > 0 && rect.height > 0 && (canvas.width !== rect.width || canvas.height !== rect.height)) {
+                // Guardar el contenido actual antes de redimensionar
+                const tempCanvas = document.createElement('canvas');
+                tempCanvas.width = canvas.width;
+                tempCanvas.height = canvas.height;
+                if (canvas.width > 0 && canvas.height > 0) {
+                    tempCanvas.getContext('2d').drawImage(canvas, 0, 0);
+                }
+                
+                canvas.width = rect.width;
+                canvas.height = rect.height;
+                
+                // Restaurar contenido
+                ctx.drawImage(tempCanvas, 0, 0);
+            }
+        }
+        window.addEventListener('load', resizeCanvas);
+        window.addEventListener('resize', resizeCanvas);
+
+        // HELPER PARA COORDENADAS PRECISAS
+        function getMousePos(e) {
+            const rect = canvas.getBoundingClientRect();
+            let clientX, clientY;
+            if(e.touches && e.touches.length > 0) {
+                clientX = e.touches[0].clientX;
+                clientY = e.touches[0].clientY;
+            } else {
+                clientX = e.clientX;
+                clientY = e.clientY;
+            }
+            return {
+                x: clientX - rect.left,
+                y: clientY - rect.top
+            };
+        }
+
+        function startPosition(e) {
+            painting = true;
+            const pos = getMousePos(e);
+            
+            // Empezar nuevo trazo REAL
+            ctx.beginPath();
+            ctx.moveTo(pos.x, pos.y);
+            
+            // Dibujar un punto si es solo un clic
+            draw(e);
+        }
+        
+        function endPosition() {
+            painting = false;
+            ctx.beginPath(); // Resetear path para no conectar con el siguiente
+        }
+        
+        function draw(e) {
+            if (!painting) return;
+            
+            const pos = getMousePos(e);
+
+            ctx.lineWidth = brushSize; 
+            ctx.lineCap = 'round';
+            ctx.lineJoin = 'round';
+
+            if (isErasing) {
+                ctx.globalCompositeOperation = 'destination-out'; 
+                ctx.strokeStyle = 'rgba(0,0,0,1)'; 
+            } else {
+                ctx.globalCompositeOperation = 'source-over'; 
+                ctx.strokeStyle = brushColor;
+            }
+
+            ctx.lineTo(pos.x, pos.y);
+            ctx.stroke();
+            
+            // IMPORTANTE: Mover el contexto para el siguiente segmento suave
+            ctx.beginPath();
+            ctx.moveTo(pos.x, pos.y);
+        }
+
+        canvas.addEventListener('mousedown', startPosition);
+        canvas.addEventListener('mouseup', endPosition);
+        canvas.addEventListener('mousemove', draw);
+        canvas.addEventListener('mouseleave', endPosition); 
+
+        canvas.addEventListener('touchstart', (e) => { e.preventDefault(); startPosition(e); });
+        canvas.addEventListener('touchend', endPosition);
+        canvas.addEventListener('touchmove', (e) => { e.preventDefault(); draw(e); });
+
+        function changeColor(color) {
+            isErasing = false; // Desactivar goma
+            brushColor = color;
+            brushPreview.style.backgroundColor = color;
+            
+            // Resetear estilo visual del botón de goma
+            eraserBtn.classList.remove('bg-rose-100', 'border-rose-500', 'text-rose-600');
+            eraserBtn.classList.add('bg-white', 'border-gray-300');
+            
+            ctx.globalCompositeOperation = 'source-over';
+        }
+
+        function activateEraser() {
+            isErasing = true;
+            brushPreview.style.backgroundColor = '#ffffff'; // Blanco para indicar borrado
+            
+            // Estilo visual para botón de goma activo
+            eraserBtn.classList.add('bg-rose-100', 'border-rose-500', 'text-rose-600');
+            eraserBtn.classList.remove('bg-white', 'border-gray-300');
+        }
+        
+        // Exponer funciones globalmente
+        window.changeColor = changeColor;
+        window.activateEraser = activateEraser;
+
+        function clearCanvas() {
+            if(confirm('¿Borrar todo el dibujo?')) {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+            }
+        }
+
+        function saveDrawing() {
+            const currentComposite = ctx.globalCompositeOperation;
+            ctx.globalCompositeOperation = 'source-over';
+            
+            const dataURL = canvas.toDataURL();
+            
+            ctx.globalCompositeOperation = currentComposite;
+
+            const newItem = { 
+                id: Date.now(), 
+                type: 'image', 
+                content: dataURL, 
+                date: new Date().toLocaleDateString() 
+            };
+            savedItems.push(newItem);
+            localStorage.setItem('loveWallItems', JSON.stringify(savedItems));
+            clearCanvas();
+            renderItems();
+            alert('¡Dibujo guardado! 🎨');
+            tabText.click(); 
+        }
+
+        renderItems();
+
+    </script>
+``
+</body>
+
+</html>
